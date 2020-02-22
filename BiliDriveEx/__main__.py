@@ -190,12 +190,13 @@ def upload_handle(args):
     if os.path.isdir(file_name):
         log("暂不支持上传文件夹")
         return None
-    log(f"上传: {os.path.basename(file_name)} ({size_string(os.path.getsize(file_name))})")
+    log(f"上传: {os.path.basename(file_name)} ({size_string(os.path.getsize(file_name))})")   
+    # 分块大小
     if os.path.getsize(file_name)>104857600:
         args.block_size=16
     else:
         args.block_size=4
-    args.block_size=16
+    args.thread=8  # 线程数
     first_4mb_sha1 = calc_sha1(read_in_chunk(file_name, chunk_size=4 * 1024 * 1024, chunk_number=1), hexdigest=True)
     history = read_history()
     if first_4mb_sha1 in history:
@@ -382,13 +383,13 @@ def main():
     upload_parser = subparsers.add_parser("upload", help="upload a file")
     upload_parser.add_argument("file", help="name of the file to upload")
     upload_parser.add_argument("-b", "--block-size", default=4, type=int, help="block size in MB")
-    upload_parser.add_argument("-t", "--thread", default=8, type=int, help="upload thread number")
+    upload_parser.add_argument("-t", "--thread", default=4, type=int, help="upload thread number")
     upload_parser.set_defaults(func=upload_handle)
     download_parser = subparsers.add_parser("download", help="download a file")
     download_parser.add_argument("meta", help="meta url")
     download_parser.add_argument("file", nargs="?", default="", help="new file name")
     download_parser.add_argument("-f", "--force", action="store_true", help="force to overwrite if file exists")
-    download_parser.add_argument("-t", "--thread", default=8, type=int, help="download thread number")#@@
+    download_parser.add_argument("-t", "--thread", default=8, type=int, help="download thread number")
     download_parser.set_defaults(func=download_handle)
     info_parser = subparsers.add_parser("info", help="show meta info")
     info_parser.add_argument("meta", help="meta url")
