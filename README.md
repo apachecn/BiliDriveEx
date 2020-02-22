@@ -51,6 +51,20 @@ file: 待上传的文件路径
 
 上传完毕后，终端会打印一串 META URL（通常以`bdex://`开头）用于下载或分享，请妥善保管
 
+### 上传某文件夹下所有文件
+```
+bdex uploadall [-h] filepath
+
+filepath：上传的文件夹路径
+
+e.g.
+bdex uploadall "C:\Users\Administrator\Desktop\BiliDrive\"
+即可以上传此文件夹下的所有文件（不包含其子文件夹下的内容）
+
+```
+
+注意：此方法仅能上传此文件夹的内容，而**不能上传其子文件夹的内容**
+
 ### 下载
 
 ```
@@ -64,6 +78,39 @@ file: 另存为新的文件名, 不指定则保存为上传时的文件名
 ```
 
 下载完毕后会自动进行文件完整性校验，对于大文件该过程可能需要较长时间，若不愿等待可直接退出
+
+### 下载所有文件
+```
+bdex downloadall [-h] jsonfile
+
+jsonfile：原始的history.json文件（可以不是这个名字）
+
+e.g.
+bdex downloadall C:\Users\Administrator\Desktop\history.json
+e.g.
+bdex downloadall C:\Users\Administrator\Desktop\music.json
+```
+
+### 如何获取history.json文件
+
+1. 在cmd中运行bdex
+2. 打开任务管理器，找到 bdex.exe 的进程，右键打开文件位置  
+例如我现在打开了 C:\Users\Administrator\AppData\Local\Programs\Python\Python36-32\\**Scripts**
+3. 再跳转到C:\Users\Administrator\AppData\Local\Programs\Python\Python36-32\\**Lib\site-packages\BiliDriveEx**
+4. 即可以看到history.json
+
+### history.json 转换为 markdown
+```
+BiliDriveEx tomd [-h] [-j JSONFILE] [-m MDFILE]
+
+-j 可选参数 history.json 的文件位置
+默认为 C:\Users\Administrator\AppData\Local\Programs\Python\Python36-32\Lib\site-packages\BiliDriveEx\history.json
+-m 可选参数
+默认为 C:\Users\Administrator\desktop\BiliDrive.md
+
+
+
+```
 
 ### 查看文件元数据
 

@@ -370,30 +370,104 @@ def history_handle(args):
             print(f"{' ' * len(prefix)} META URL -> {meta_string(meta_dict['url'])}")
     else:
         print(f"暂无历史记录")
+        
+def uploadall_handle(args):
+    path=args.filepath
+    
+    for i in os.listdir(path):
+        #print(i)
+        a='bdex upload "'+path+'\\' + i +'"'
+        #print(a)
+        os.system(a)
+
+def downloadall_handle(args):
+    path_json=args.jsonfile
+    
+    f=open(path_json,encoding='utf-8')
+    a=f.read()
+    f.close()
+    b=json.loads(a)
+    
+    for i in b:
+        a='bdex download bdex://'+b[i]['url'][30:][:40]
+        #print()
+        #print(a)
+        os.system(a)
+        
+def tomd_handle(args):
+    if args.jsonfile==None : 
+        path_json=r'C:\Users\Administrator\AppData\Local\Programs\Python\Python36-32\Lib\site-packages\BiliDriveEx\history.json'
+    print('history json地址：')
+    print(path_json)
+    f=open(path_json,encoding='utf-8')
+    a=f.read()
+    f.close()
+    b=json.loads(a)
+    
+    if args.mdfile==None :
+        path_md=r'C:\Users\Administrator\desktop\BiliDrive.md'
+    print('md地址：')
+    print(path_md)
+    p = open(path_md,'w',encoding='utf-8')
+    
+    for i in b :
+        print(b[i]['filename']+'  ',file=p)
+        print('---',file=p)
+    
+        timeStamp = b[i]['time']
+        timeArray = time.localtime(timeStamp)
+        updateTime = time.strftime("%Y-%m-%d %H:%M:%S", timeArray)
+        print(updateTime+'  '+size_string(b[i]['size'])+'  ',file=p)
+        print('SHA1 ',b[i]['sha1']+'  ',file=p)
+        print('bdex://'+b[i]['url'][30:][:40]+'  ',file=p)
+
+        print(file=p)  
+        print(file=p)
+    
+    print('转换为markdown成功')
+    
 
 def main():
     signal.signal(signal.SIGINT, lambda signum, frame: os.kill(os.getpid(), 9))
     parser = argparse.ArgumentParser(prog="BiliDriveEx", description="Make Bilibili A Great Cloud Storage!", formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("-v", "--version", action="version", version=f"BiliDriveEx version: {__version__}")
-    subparsers = parser.add_subparsers()
+    subparsers  = parser.add_subparsers(help='sub-command help')
+    
     login_parser = subparsers.add_parser("login", help="log in to bilibili")
     login_parser.add_argument("username", help="your bilibili username")
     login_parser.add_argument("password", help="your bilibili password")
     login_parser.set_defaults(func=login_handle)
+    
     upload_parser = subparsers.add_parser("upload", help="upload a file")
     upload_parser.add_argument("file", help="name of the file to upload")
     upload_parser.add_argument("-b", "--block-size", default=4, type=int, help="block size in MB")
     upload_parser.add_argument("-t", "--thread", default=4, type=int, help="upload thread number")
     upload_parser.set_defaults(func=upload_handle)
+    
+    uploadall_parser = subparsers.add_parser("uploadall", help="Uploaded all files does not contain subfolders")
+    uploadall_parser.add_argument("filepath", help="Uploaded folder path")
+    uploadall_parser.set_defaults(func=uploadall_handle)
+    
     download_parser = subparsers.add_parser("download", help="download a file")
     download_parser.add_argument("meta", help="meta url")
     download_parser.add_argument("file", nargs="?", default="", help="new file name")
     download_parser.add_argument("-f", "--force", action="store_true", help="force to overwrite if file exists")
     download_parser.add_argument("-t", "--thread", default=8, type=int, help="download thread number")
     download_parser.set_defaults(func=download_handle)
+    
+    downloadall_parser = subparsers.add_parser("downloadall", help="download all file")
+    downloadall_parser.add_argument("jsonfile", help="history json file path")
+    downloadall_parser.set_defaults(func=downloadall_handle)
+    
+    tomd_parser = subparsers.add_parser("tomd", help="history json to markdown")
+    tomd_parser.add_argument("-j", "--jsonfile", help="history json file path")
+    tomd_parser.add_argument("-m", "--mdfile",help="Output to a file path")
+    tomd_parser.set_defaults(func=tomd_handle)
+    
     info_parser = subparsers.add_parser("info", help="show meta info")
     info_parser.add_argument("meta", help="meta url")
     info_parser.set_defaults(func=info_handle)
+    
     history_parser = subparsers.add_parser("history", help="show upload history")
     history_parser.set_defaults(func=history_handle)
     shell = False
